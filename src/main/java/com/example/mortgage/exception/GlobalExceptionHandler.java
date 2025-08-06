@@ -1,6 +1,6 @@
 package com.example.mortgage.exception;
 
-import com.example.mortgage.model.ApiResponse;
+import com.example.mortgage.util.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

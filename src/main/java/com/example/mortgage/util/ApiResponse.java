@@ -1,4 +1,4 @@
-package com.example.mortgage.model;
+package com.example.mortgage.util;
 
 import java.util.List;
 import java.util.Optional;
