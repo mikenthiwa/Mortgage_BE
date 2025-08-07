@@ -15,4 +15,9 @@ public class Role {
         USER,
         ADMIN
     }
+
+    //Get name
+    public RoleName getName() {
+        return name;
+    }
 }

@@ -1,35 +1,76 @@
 package com.example.mortgage.controller;
 
 import com.example.mortgage.dto.MortgageApplicationRequest;
+import com.example.mortgage.dto.MortgageApplicationResponse;
+import com.example.mortgage.exception.ResourceNotFoundException;
+import com.example.mortgage.exception.UnauthorizedException;
 import com.example.mortgage.model.MortgageApplication;
+import com.example.mortgage.model.User;
+import com.example.mortgage.repository.UserRepository;
 import com.example.mortgage.service.MortgageApplicationService;
+import com.example.mortgage.util.ApiResponse;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/mortgage")
 public class MortgageApplicationController {
     private final MortgageApplicationService mortgageApplicationService;
+    private final UserRepository userRepository;
 
-    public  MortgageApplicationController(MortgageApplicationService mortgageApplicationService) {
+    public  MortgageApplicationController(MortgageApplicationService mortgageApplicationService, UserRepository userRepository) {
         this.mortgageApplicationService = mortgageApplicationService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/user/{userId}/application")
-    public ResponseEntity<MortgageApplication> createApplication(@PathVariable Long userId, @RequestBody MortgageApplicationRequest request) {
-        return ResponseEntity.ok(mortgageApplicationService.createApplication(request, userId));
+    public ResponseEntity<ApiResponse> createApplication(
+            @PathVariable Long userId,
+            @RequestBody MortgageApplicationRequest request) {
+
+        mortgageApplicationService.createApplication(request, userId);
+        ApiResponse response = ApiResponse.success(
+                "Application submitted successfully", 201, null
+        );
+        return ResponseEntity.status(201).body(response);
+    }
+
+    @GetMapping("/applications")
+    public ResponseEntity<ApiResponse> getAllApplications() {
+        var data = mortgageApplicationService.getAllApplications();
+        var response = ApiResponse.success("Applications retrieved successfully", 200, data);
+        return ResponseEntity.status(response.statusCode).body(response);
     }
 
     @PutMapping("/application/{applicationId}/status")
-    public ResponseEntity<MortgageApplication> updateApplicationStatus(
+    public ResponseEntity<ApiResponse> updateApplicationStatus(
             @PathVariable Long applicationId,
+            @RequestParam Long userId,
             @RequestParam MortgageApplication.ApplicationStatus status) {
-        return ResponseEntity.ok(mortgageApplicationService.updateApplicationStatus(applicationId, status));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName().name().equals("ADMIN"));
+
+        if (!isAdmin) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        MortgageApplicationResponse updated = mortgageApplicationService.updateApplicationStatus(applicationId, status);
+
+        String message = "Application status updated to " + updated.getStatus().name();
+        ApiResponse response = ApiResponse.success(message, 200, updated);
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/application/{applicationId}")
     public ResponseEntity<Void> deleteApplication(@PathVariable Long applicationId) {
-        mortgageApplicationService.deleteApplication(applicationId);
         return ResponseEntity.noContent().build();
     }
 }
