@@ -33,4 +33,10 @@ public class GlobalExceptionHandler {
         ApiResponse response = ApiResponse.error(ex.getMessage(), 404, List.of(ex.getMessage()));
         return ResponseEntity.status(404).body(response);
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        ApiResponse response = ApiResponse.error("Unauthorized access", 401, List.of(ex.getMessage()));
+        return ResponseEntity.status(401).body(response);
+    }
 }

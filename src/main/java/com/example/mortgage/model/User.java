@@ -21,4 +21,20 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
+
+    // Get roles
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    // Get Username
+    public String getUsername() {
+        return username;
+    }
+
+    // Get Password
+    public String getPassword() {
+        return password;
+    }
+
 }

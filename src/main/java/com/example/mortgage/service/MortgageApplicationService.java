@@ -1,12 +1,16 @@
 package com.example.mortgage.service;
 
 import com.example.mortgage.dto.MortgageApplicationRequest;
+import com.example.mortgage.dto.MortgageApplicationResponse;
 import com.example.mortgage.exception.ResourceNotFoundException;
 import com.example.mortgage.model.MortgageApplication;
 import com.example.mortgage.model.User;
 import com.example.mortgage.repository.MortgageApplicationRepository;
 import com.example.mortgage.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MortgageApplicationService {
@@ -26,11 +30,32 @@ public class MortgageApplicationService {
         return mortgageApplicationRepository.save(application);
     }
 
-    public MortgageApplication updateApplicationStatus(Long applicationId, MortgageApplication.ApplicationStatus status) {
+    public List<MortgageApplicationResponse> getAllApplications() {
+        return mortgageApplicationRepository
+                .findAll()
+                .stream()
+                .map(app -> new MortgageApplicationResponse(
+                        app.getId(),
+                        app.getApplicantName(),
+                        app.getAmount(),
+                        app.getStatus(),
+                        app.getApplicant().getUsername()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public MortgageApplicationResponse updateApplicationStatus(Long applicationId, MortgageApplication.ApplicationStatus status) {
         MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
         application.setStatus(status);
-        return mortgageApplicationRepository.save(application);
+        MortgageApplication saved = mortgageApplicationRepository.save(application);
+        return new MortgageApplicationResponse(
+                saved.getId(),
+                saved.getApplicantName(),
+                saved.getAmount(),
+                saved.getStatus(),
+                saved.getApplicant().getUsername()
+        );
     }
 
     public void deleteApplication(Long applicationId) {
