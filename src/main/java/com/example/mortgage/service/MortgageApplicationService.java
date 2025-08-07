@@ -2,6 +2,7 @@ package com.example.mortgage.service;
 
 import com.example.mortgage.dto.MortgageApplicationRequest;
 import com.example.mortgage.dto.MortgageApplicationResponse;
+import com.example.mortgage.event.KafkaPublisher;
 import com.example.mortgage.exception.ResourceNotFoundException;
 import com.example.mortgage.model.MortgageApplication;
 import com.example.mortgage.model.User;
@@ -16,9 +17,13 @@ import java.util.stream.Collectors;
 public class MortgageApplicationService {
     private final MortgageApplicationRepository mortgageApplicationRepository;
     private final UserRepository userRepository;
-    public MortgageApplicationService(MortgageApplicationRepository mortgageApplicationRepository, UserRepository userRepository) {
+    private final KafkaPublisher kafkaPublisher;
+
+    public MortgageApplicationService(MortgageApplicationRepository mortgageApplicationRepository, UserRepository userRepository, KafkaPublisher kafkaPublisher
+    ) {
         this.mortgageApplicationRepository = mortgageApplicationRepository;
         this.userRepository = userRepository;
+        this.kafkaPublisher = kafkaPublisher;
     }
 
     public MortgageApplication createApplication(MortgageApplicationRequest mortgageApplicationRequest, Long userId) {
@@ -27,6 +32,7 @@ public class MortgageApplicationService {
         application.setApplicantName(mortgageApplicationRequest.getApplicantName());
         application.setAmount(mortgageApplicationRequest.getAmount());
         application.setApplicant(user);
+        kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
         return mortgageApplicationRepository.save(application);
     }
 
@@ -49,6 +55,7 @@ public class MortgageApplicationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
         application.setStatus(status);
         MortgageApplication saved = mortgageApplicationRepository.save(application);
+        kafkaPublisher.publish("mortgage-application-updated", "Updated application ID: " + saved.getId() + " to status: " + status);
         return new MortgageApplicationResponse(
                 saved.getId(),
                 saved.getApplicantName(),
@@ -61,6 +68,7 @@ public class MortgageApplicationService {
     public void deleteApplication(Long applicationId) {
         MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
+        kafkaPublisher.publish("mortgage-application-deleted", "Deleted application ID: " + application.getId());
         mortgageApplicationRepository.delete(application);
     }
 
