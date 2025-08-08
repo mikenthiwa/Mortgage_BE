@@ -26,6 +26,7 @@ public class MortgageApplicationController {
         this.userRepository = userRepository;
     }
 
+    @CrossOrigin
     @PostMapping("/user/{userId}/application")
     public ResponseEntity<ApiResponse> createApplication(
             @PathVariable Long userId,
@@ -38,6 +39,7 @@ public class MortgageApplicationController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @CrossOrigin
     @GetMapping("/applications")
     public ResponseEntity<ApiResponse> getAllApplications() {
         var data = mortgageApplicationService.getAllApplications();
@@ -45,6 +47,7 @@ public class MortgageApplicationController {
         return ResponseEntity.status(response.statusCode).body(response);
     }
 
+    @CrossOrigin
     @PutMapping("/application/{applicationId}/status")
     public ResponseEntity<ApiResponse> updateApplicationStatus(
             @PathVariable Long applicationId,
@@ -66,11 +69,24 @@ public class MortgageApplicationController {
         String message = "Application status updated to " + updated.getStatus().name();
         ApiResponse response = ApiResponse.success(message, 200, updated);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(response.statusCode).body(response);
     }
 
+    @CrossOrigin
     @DeleteMapping("/application/{applicationId}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable Long applicationId) {
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse> deleteApplication(@PathVariable Long applicationId, @RequestParam Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName().name().equals("ADMIN"));
+
+        if (!isAdmin) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        mortgageApplicationService.deleteApplication(applicationId);
+        ApiResponse response = ApiResponse.success("Application deleted successfully", 204, null);
+        return ResponseEntity.status(response.statusCode).body(response);
     }
 }
