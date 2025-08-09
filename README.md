@@ -60,19 +60,4 @@ Test reports will be available in the `target/surefire-reports` directory.
 
 ---
 
-## Frontend
-
-If you have a deployed frontend (e.g., Netlify, Vercel, GitHub Pages), add the link here:
-
-- [Frontend Deployment](https://your-frontend-link.com)
-
----
-
-## Additional Resources
-- [HELP.md](./HELP.md)
-- [API Documentation] (if available)
-
----
-
-For any issues, please open an issue or contact the maintainer.
 
