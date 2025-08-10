@@ -22,6 +22,11 @@ public class User {
     )
     private Set<Role> roles;
 
+    //Set Id
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     // Get roles
     public Set<Role> getRoles() {
         return roles;
