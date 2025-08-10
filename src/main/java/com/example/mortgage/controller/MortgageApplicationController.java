@@ -9,12 +9,15 @@ import com.example.mortgage.model.User;
 import com.example.mortgage.repository.UserRepository;
 import com.example.mortgage.service.MortgageApplicationService;
 import com.example.mortgage.util.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Mortgage Application", description = "Endpoints for managing mortgage applications")
 @RestController
 @RequestMapping("/api/mortgage")
 public class MortgageApplicationController {
@@ -26,6 +29,7 @@ public class MortgageApplicationController {
         this.userRepository = userRepository;
     }
 
+    @Operation(summary = "Create a new mortgage application")
     @CrossOrigin
     @PostMapping("/user/{userId}/application")
     public ResponseEntity<ApiResponse> createApplication(
@@ -39,6 +43,7 @@ public class MortgageApplicationController {
         return ResponseEntity.status(201).body(response);
     }
 
+    @Operation(summary = "Get all mortgage applications")
     @CrossOrigin
     @GetMapping("/applications")
     public ResponseEntity<ApiResponse> getAllApplications() {
@@ -47,6 +52,7 @@ public class MortgageApplicationController {
         return ResponseEntity.status(response.statusCode).body(response);
     }
 
+    @Operation(summary = "Update the status of a mortgage application")
     @CrossOrigin
     @PutMapping("/application/{applicationId}/status")
     public ResponseEntity<ApiResponse> updateApplicationStatus(
@@ -72,6 +78,7 @@ public class MortgageApplicationController {
         return ResponseEntity.status(response.statusCode).body(response);
     }
 
+    @Operation(summary = "Delete a mortgage application")
     @CrossOrigin
     @DeleteMapping("/application/{applicationId}")
     public ResponseEntity<ApiResponse> deleteApplication(@PathVariable Long applicationId, @RequestParam Long userId) {

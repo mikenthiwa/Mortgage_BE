@@ -49,6 +49,10 @@ This will start the backend and any dependent services defined in `docker-compos
 
 ---
 
+## API Documentation
+### Swagger UI
+Access the Swagger UI at [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html) to explore the API endpoints.
+
 ## Test Execution Instructions
 
 ### Run All Tests
