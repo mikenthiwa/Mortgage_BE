@@ -1,8 +1,6 @@
-package com.example.mortgage.dto;
+package com.example.mortgage.mortgage;
 
-import java.math.BigDecimal;
-
-public class MortgageApplicationRequest {
+class MortgageApplicationRequest {
     private String applicantName;
     private Double amount;
 

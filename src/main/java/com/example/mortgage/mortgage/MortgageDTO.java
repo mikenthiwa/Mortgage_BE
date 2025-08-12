@@ -1,24 +1,19 @@
-package com.example.mortgage.dto;
+package com.example.mortgage.mortgage;
 
 import com.example.mortgage.model.MortgageApplication;
 
-public class MortgageApplicationResponse {
+class MortgageDTO {
 
     private Long id;
     private String applicantName;
     private Double amount;
     private MortgageApplication.ApplicationStatus status;
-    private String applicantUsername;
 
-    public MortgageApplicationResponse() {
-    }
-
-    public MortgageApplicationResponse(Long id, String applicantName, Double amount, MortgageApplication.ApplicationStatus status, String applicantUsername) {
+    public MortgageDTO(Long id, String applicantName, Double amount, MortgageApplication.ApplicationStatus status) {
         this.id = id;
         this.applicantName = applicantName;
         this.amount = amount;
         this.status = status;
-        this.applicantUsername = applicantUsername;
     }
 
     public Long getId() {
@@ -51,13 +46,5 @@ public class MortgageApplicationResponse {
 
     public void setStatus(MortgageApplication.ApplicationStatus status) {
         this.status = status;
-    }
-
-    public String getApplicantUsername() {
-        return applicantUsername;
-    }
-
-    public void setApplicantUsername(String applicantUsername) {
-        this.applicantUsername = applicantUsername;
     }
 }
