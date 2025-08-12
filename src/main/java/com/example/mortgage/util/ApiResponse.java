@@ -28,5 +28,4 @@ public class ApiResponse {
         return response;
     }
 
-    // Getters and Setters
 }
