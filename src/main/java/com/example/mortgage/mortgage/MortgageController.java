@@ -1,14 +1,11 @@
-package com.example.mortgage.controller;
+package com.example.mortgage.mortgage;
 
-import com.example.mortgage.dto.MortgageApplicationRequest;
-import com.example.mortgage.dto.MortgageApplicationDTO;
-import com.example.mortgage.dto.PaginationResponse;
+import com.example.mortgage.extension.PaginationResponse;
 import com.example.mortgage.exception.ResourceNotFoundException;
 import com.example.mortgage.exception.UnauthorizedException;
 import com.example.mortgage.model.MortgageApplication;
 import com.example.mortgage.model.User;
-import com.example.mortgage.repository.UserRepository;
-import com.example.mortgage.service.MortgageApplicationService;
+import com.example.mortgage.user.UserRepository;
 import com.example.mortgage.util.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Mortgage Application", description = "Endpoints for managing mortgage applications")
 @RestController
 @RequestMapping("/api/mortgage")
-public class MortgageApplicationController {
-    private final MortgageApplicationService mortgageApplicationService;
+class MortgageController {
+    private final MortgageService mortgageApplicationService;
     private final UserRepository userRepository;
 
-    public  MortgageApplicationController(MortgageApplicationService mortgageApplicationService, UserRepository userRepository) {
+    public MortgageController(MortgageService mortgageApplicationService, UserRepository userRepository) {
         this.mortgageApplicationService = mortgageApplicationService;
         this.userRepository = userRepository;
     }
@@ -50,7 +47,7 @@ public class MortgageApplicationController {
     @Operation(summary = "Get all mortgage applications")
     @CrossOrigin
     @GetMapping("/applications")
-    public ResponseEntity<PaginationResponse<MortgageApplicationDTO>> getAllApplications(
+    public ResponseEntity<PaginationResponse<MortgageDTO>> getAllApplications(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -58,7 +55,7 @@ public class MortgageApplicationController {
     ) {
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<MortgageApplicationDTO> result = mortgageApplicationService.getAllApplications(pageable);
+        Page<MortgageDTO> result = mortgageApplicationService.getAllApplications(pageable);
         var responseBody  = new PaginationResponse<>(result, "Applications retrieved successfully");
         return ResponseEntity.status(200).body(responseBody);
     }
@@ -81,7 +78,7 @@ public class MortgageApplicationController {
             throw new UnauthorizedException("Unauthorized access");
         }
 
-        MortgageApplicationDTO updated = mortgageApplicationService.updateApplicationStatus(applicationId, status);
+        MortgageDTO updated = mortgageApplicationService.updateApplicationStatus(applicationId, status);
 
         String message = "Application status updated to " + updated.getStatus().name();
         ApiResponse response = ApiResponse.success(message, 200, updated);
