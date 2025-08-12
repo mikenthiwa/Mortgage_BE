@@ -1,4 +1,4 @@
-package com.example.mortgage.repository;
+package com.example.mortgage.user;
 
 import com.example.mortgage.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.example.mortgage.dto;
+package com.example.mortgage.extension;
 
 import com.example.mortgage.util.ApiResponse;
 import org.springframework.data.domain.Page;

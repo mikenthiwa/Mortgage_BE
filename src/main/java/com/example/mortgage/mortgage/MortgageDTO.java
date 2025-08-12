@@ -1,15 +1,15 @@
-package com.example.mortgage.dto;
+package com.example.mortgage.mortgage;
 
 import com.example.mortgage.model.MortgageApplication;
 
-public class MortgageApplicationDTO {
+class MortgageDTO {
 
     private Long id;
     private String applicantName;
     private Double amount;
     private MortgageApplication.ApplicationStatus status;
 
-    public MortgageApplicationDTO(Long id, String applicantName, Double amount, MortgageApplication.ApplicationStatus status) {
+    public MortgageDTO(Long id, String applicantName, Double amount, MortgageApplication.ApplicationStatus status) {
         this.id = id;
         this.applicantName = applicantName;
         this.amount = amount;
