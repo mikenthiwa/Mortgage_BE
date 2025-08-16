@@ -48,13 +48,13 @@ class MortgageController {
     @CrossOrigin
     @GetMapping("/applications")
     public ResponseEntity<PaginationResponse<MortgageDTO>> getAllApplications(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "true") boolean ascending
     ) {
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<MortgageDTO> result = mortgageApplicationService.getAllApplications(pageable);
         var responseBody  = new PaginationResponse<>(result, "Applications retrieved successfully");
         return ResponseEntity.status(200).body(responseBody);
