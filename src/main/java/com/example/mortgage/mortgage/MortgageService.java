@@ -28,7 +28,7 @@ class MortgageService {
         application.setApplicantName(mortgageApplicationRequest.getApplicantName());
         application.setAmount(mortgageApplicationRequest.getAmount());
         application.setApplicant(user);
-//        kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
+        kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
         return mortgageApplicationRepository.save(application);
     }
 
