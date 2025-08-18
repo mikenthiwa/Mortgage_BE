@@ -2,6 +2,7 @@ package com.example.mortgage.mortgage;
 
 import com.example.mortgage.event.KafkaPublisher;
 import com.example.mortgage.exception.ResourceNotFoundException;
+import com.example.mortgage.exception.UnhandledException;
 import com.example.mortgage.model.MortgageApplication;
 import com.example.mortgage.model.User;
 import com.example.mortgage.user.UserRepository;
@@ -23,17 +24,23 @@ class MortgageService {
     }
 
     public MortgageApplication createApplication(MortgageApplicationRequest mortgageApplicationRequest, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        MortgageApplication application = new MortgageApplication();
-        application.setApplicantName(mortgageApplicationRequest.getApplicantName());
-        application.setAmount(mortgageApplicationRequest.getAmount());
-        application.setApplicant(user);
-        kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
-        return mortgageApplicationRepository.save(application);
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            MortgageApplication application = new MortgageApplication();
+            application.setApplicantName(mortgageApplicationRequest.getApplicantName());
+            application.setAmount(mortgageApplicationRequest.getAmount());
+            application.setApplicant(user);
+            kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
+            return mortgageApplicationRepository.save(application);
+        } catch (Exception e) {
+            throw new UnhandledException("Something went wrong while creating the mortgage application");
+        }
+
     }
 
     public Page<MortgageDTO> getAllApplications(Pageable pageable) {
-        return mortgageApplicationRepository
+        try {
+            return mortgageApplicationRepository
                 .findAll(pageable)
                 .map(app -> new MortgageDTO(
                         app.getId(),
@@ -41,27 +48,41 @@ class MortgageService {
                         app.getAmount(),
                         app.getStatus()
                 ));
+        } catch (Exception e) {
+            throw new UnhandledException("Something went wrong while fetching mortgage applications");
+        }
+
     }
 
     public MortgageDTO updateApplicationStatus(Long applicationId, MortgageApplication.ApplicationStatus status) {
-        MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
-        application.setStatus(status);
-        MortgageApplication saved = mortgageApplicationRepository.save(application);
-        kafkaPublisher.publish("mortgage-application-updated", "Updated application ID: " + saved.getId() + " to status: " + status);
-        return new MortgageDTO(
-                saved.getId(),
-                saved.getApplicantName(),
-                saved.getAmount(),
-                saved.getStatus()
-        );
+        try {
+            MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
+            application.setStatus(status);
+            MortgageApplication saved = mortgageApplicationRepository.save(application);
+            kafkaPublisher.publish("mortgage-application-updated", "Updated application ID: " + saved.getId() + " to status: " + status);
+            return new MortgageDTO(
+                    saved.getId(),
+                    saved.getApplicantName(),
+                    saved.getAmount(),
+                    saved.getStatus()
+            );
+        } catch (Exception e) {
+            throw new UnhandledException("Something went wrong while updating the mortgage application status");
+        }
+
     }
 
     public void deleteApplication(Long applicationId) {
-        MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
-        kafkaPublisher.publish("mortgage-application-deleted", "Deleted application ID: " + application.getId());
-        mortgageApplicationRepository.delete(application);
+        try {
+            MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
+            kafkaPublisher.publish("mortgage-application-deleted", "Deleted application ID: " + application.getId());
+            mortgageApplicationRepository.delete(application);
+        } catch (Exception e) {
+            throw new UnhandledException("Something went wrong while deleting the mortgage application");
+        }
+
     }
 
 }
