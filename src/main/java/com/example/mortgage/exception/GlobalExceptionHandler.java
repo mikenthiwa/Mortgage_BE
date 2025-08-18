@@ -11,7 +11,7 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGeneralException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> handleGeneralException(UnhandledException ex, HttpServletRequest request) {
         ApiResponse response = ApiResponse.error("An unexpected error occurred", 500, List.of(ex.getMessage()));
         return ResponseEntity.status(500).body(response);
     }
