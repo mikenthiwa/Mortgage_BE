@@ -101,7 +101,7 @@ class MortgageController {
         }
 
         mortgageApplicationService.deleteApplication(applicationId);
-        ApiResponse response = ApiResponse.success("Application deleted successfully", 204, null);
+        ApiResponse response = ApiResponse.success("Application deleted successfully", 200, null);
         return ResponseEntity.status(response.statusCode).body(response);
     }
 }
