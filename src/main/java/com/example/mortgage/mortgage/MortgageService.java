@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-class MortgageService {
+public class MortgageService {
     private final MortgageRepository mortgageApplicationRepository;
     private final UserRepository userRepository;
     private final KafkaPublisher kafkaPublisher;
@@ -30,9 +30,15 @@ class MortgageService {
             application.setApplicantName(mortgageApplicationRequest.getApplicantName());
             application.setAmount(mortgageApplicationRequest.getAmount());
             application.setApplicant(user);
-            kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + application.getId());
-            return mortgageApplicationRepository.save(application);
-        } catch (Exception e) {
+            var createdApplication = mortgageApplicationRepository.save(application);
+            kafkaPublisher.publish("mortgage-application-created", "Created application ID: " + createdApplication.getId());
+            return createdApplication;
+
+        }
+        catch (ResourceNotFoundException e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new UnhandledException("Something went wrong while creating the mortgage application");
         }
 
@@ -60,14 +66,19 @@ class MortgageService {
                     .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
             application.setStatus(status);
             MortgageApplication saved = mortgageApplicationRepository.save(application);
-            kafkaPublisher.publish("mortgage-application-updated", "Updated application ID: " + saved.getId() + " to status: " + status);
-            return new MortgageDTO(
+            MortgageDTO updatedAppStatus = new MortgageDTO(
                     saved.getId(),
                     saved.getApplicantName(),
                     saved.getAmount(),
                     saved.getStatus()
             );
-        } catch (Exception e) {
+            kafkaPublisher.publish("mortgage-application-updated", "Updated application ID: " + saved.getId() + " to status: " + status);
+            return updatedAppStatus;
+        }
+        catch (ResourceNotFoundException e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new UnhandledException("Something went wrong while updating the mortgage application status");
         }
 
@@ -77,9 +88,13 @@ class MortgageService {
         try {
             MortgageApplication application = mortgageApplicationRepository.findById(applicationId)
                     .orElseThrow(() -> new ResourceNotFoundException("Mortgage application not found"));
-            kafkaPublisher.publish("mortgage-application-deleted", "Deleted application ID: " + application.getId());
             mortgageApplicationRepository.delete(application);
-        } catch (Exception e) {
+            kafkaPublisher.publish("mortgage-application-deleted", "Deleted application ID: " + application.getId());
+        }
+        catch (ResourceNotFoundException e) {
+            throw e;
+        }
+        catch (Exception e) {
             throw new UnhandledException("Something went wrong while deleting the mortgage application");
         }
 

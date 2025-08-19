@@ -2,7 +2,7 @@ package com.example.mortgage.mortgage;
 
 import com.example.mortgage.model.MortgageApplication;
 
-class MortgageDTO {
+public class MortgageDTO {
 
     private Long id;
     private String applicantName;

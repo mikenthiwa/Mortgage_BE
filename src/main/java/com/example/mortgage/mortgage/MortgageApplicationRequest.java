@@ -1,6 +1,6 @@
 package com.example.mortgage.mortgage;
 
-class MortgageApplicationRequest {
+public class MortgageApplicationRequest {
     private String applicantName;
     private Double amount;
 
